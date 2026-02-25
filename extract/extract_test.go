@@ -334,8 +334,9 @@ func TestExtractFirmwareLogStateTPM(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			eventGetters := map[string]func(*testing.T) (crypto.Hash, []tcg.Event){
-				"singleBoot":   getTPMELEvents,
-				"multipleBoot": getTPMELEventsWithMultipleBootAttempts,
+				"singleBoot":            getTPMELEvents,
+				"ubuntuMultipleBoot":    getTPMELEventsUbuntuWithMultipleBootAttempts,
+				"cosSecureMultipleBoot": getTPMELEventsCosWithSecureBootAndMultipleBootAttempts,
 			}
 			for name, getEvents := range eventGetters {
 				t.Run(name, func(t *testing.T) {
@@ -603,7 +604,7 @@ func getTPMELEvents(t *testing.T) (crypto.Hash, []tcg.Event) {
 	return cryptoHash, events
 }
 
-func getTPMELEventsWithMultipleBootAttempts(t *testing.T) (crypto.Hash, []tcg.Event) {
+func getTPMELEventsUbuntuWithMultipleBootAttempts(t *testing.T) (crypto.Hash, []tcg.Event) {
 	log := testdata.Ubuntu2404IntelTdxEventLog
 	bank := testutil.MakePCRBank(pb.HashAlgo_SHA384, map[uint32][]byte{
 		0:  decodeHex("592b3f42ec556a9c093f201124cc7313fdaa4ce40ae1602e14d51f18fbfc480d6a1e196d1c52ad919328410272dc7222"),
@@ -630,6 +631,46 @@ func getTPMELEventsWithMultipleBootAttempts(t *testing.T) (crypto.Hash, []tcg.Ev
 		21: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		22: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		23: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+	})
+	cryptoHash, err := bank.CryptoHash()
+	if err != nil {
+		t.Fatal(err)
+	}
+	events, err := tcg.ParseAndReplay(log, bank.MRs(), tcg.ParseOpts{})
+	if err != nil {
+		t.Fatal(err)
+
+	}
+	return cryptoHash, events
+}
+
+func getTPMELEventsCosWithSecureBootAndMultipleBootAttempts(t *testing.T) (crypto.Hash, []tcg.Event) {
+	log := testdata.Cos125IntelTdxSecureBootEventLog
+	bank := testutil.MakePCRBank(pb.HashAlgo_SHA384, map[uint32][]byte{
+		0:  decodeHex("592b3f42ec556a9c093f201124cc7313fdaa4ce40ae1602e14d51f18fbfc480d6a1e196d1c52ad919328410272dc7222"),
+		1:  decodeHex("d67b943903a0ac6244e491604f4d4c2090031142847e914add418b058b032aa636a7eb559669b1879b8459963ab63c24"),
+		2:  decodeHex("c286e5791d56d735f1e159bc77c5c0fb04e27a4cb697e74974b98c9db246ac7effc466ab20f42bcd974d2c5e3f1ce7c3"),
+		3:  decodeHex("518923b0f955d08da077c96aaba522b9decede61c599cea6c41889cfbea4ae4d50529d96fe4d1afdafb65e7f95bf23c4"),
+		4:  decodeHex("404e1dfa6118533162df83b88e9e183272d139e8cb306f103251030aa444ba005e2b9c8cdb90c275f707dd29e21d0085"),
+		5:  decodeHex("c50b529497c7f441ea47305587d6ce83e2e31f7b4fab6c13dc0b0c3c900e1d0caf0768321100927862df142bf0465ee4"),
+		6:  decodeHex("518923b0f955d08da077c96aaba522b9decede61c599cea6c41889cfbea4ae4d50529d96fe4d1afdafb65e7f95bf23c4"),
+		7:  decodeHex("6e64b25bab4f2382466f419dae07a4dbdbaaa3ce56c16bb740516c8bc05cb6c3dbc161016739be4e542a7265c4bd1d70"),
+		8:  decodeHex("08052cde78f6561f52a4c37286edac23fa6915e211881770a5ebbbc5fc22411a4805829b9ca4741e0715edbb58aec4e5"),
+		9:  decodeHex("596ecbc8e6077dd980848c6f2ebcc7876321c9228eef86939fc61733d02d988e25a3a06d280f36c8d9c026ba2d6175d7"),
+		10: decodeHex("8dfb3a115f861a7ef67e9670d47fe970f1029be7ca67b90cb851bc3358311ea3fd376b763b40b3a53df7785f75f1a8cb"),
+		11: decodeHex("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+		12: decodeHex("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+		13: decodeHex("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+		14: decodeHex("7dd22d0be1dc4debfbfc5900589ea0940c6276d92edb6fed8625b6ec1f9be341c253d877229c00925c826761760cb355"),
+		15: decodeHex("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+		16: decodeHex("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+		17: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+		18: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+		19: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+		20: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+		21: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+		22: decodeHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+		23: decodeHex("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 	})
 	cryptoHash, err := bank.CryptoHash()
 	if err != nil {

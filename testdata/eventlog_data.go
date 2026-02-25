@@ -47,6 +47,8 @@ var (
 	GdcHost []byte
 	//go:embed eventlogs/tpm/ubuntu-2404-intel-tdx.bin
 	Ubuntu2404IntelTdxEventLog []byte
+	//go:embed eventlogs/tpm/cos-125-intel-tdx-secure-boot.bin
+	Cos125IntelTdxSecureBootEventLog []byte
 )
 
 // Kernel command lines from event logs.
