@@ -432,9 +432,6 @@ func EfiState(hash crypto.Hash, events []tcg.Event, registerCfg registerConfig, 
 				return nil, err
 			}
 			if isSeparator {
-				if !seenCallingEfiApp {
-					return nil, fmt.Errorf("found separator event in %s%d before CallingEFIApp event", registerCfg.Name, index)
-				}
 				if seenSeparator4 {
 					return nil, fmt.Errorf("found duplicate Separator event in %s%d", registerCfg.Name, registerCfg.EFIAppIdx)
 				}
