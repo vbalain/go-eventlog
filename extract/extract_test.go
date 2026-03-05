@@ -585,7 +585,7 @@ func getTPMELEvents(t *testing.T) (crypto.Hash, []tcg.Event) {
 }
 
 func getTPMELEventsUbuntuWithMultipleBootAttempts(t *testing.T) (crypto.Hash, []tcg.Event) {
-	log := testdata.Ubuntu2404IntelTdxEventLog
+	log := testdata.Ubuntu2404IntelTdxA4HighGpu8GEventLog
 	bank := testutil.MakePCRBank(pb.HashAlgo_SHA384, map[uint32][]byte{
 		0:  decodeHex("592b3f42ec556a9c093f201124cc7313fdaa4ce40ae1602e14d51f18fbfc480d6a1e196d1c52ad919328410272dc7222"),
 		1:  decodeHex("ba1ac69c213175dc72db1493bd5bdfa4799028fe5d5c2bb41ddccc6affa50ba01f189d4639a77afbedd6dd6aff1af3b4"),
@@ -625,7 +625,7 @@ func getTPMELEventsUbuntuWithMultipleBootAttempts(t *testing.T) (crypto.Hash, []
 }
 
 func getTPMELEventsCosWithSecureBootAndMultipleBootAttempts(t *testing.T) (crypto.Hash, []tcg.Event) {
-	log := testdata.Cos125IntelTdxSecureBootEventLog
+	log := testdata.Cos125IntelTdxSecureBootA4HighGpu8GEventLog
 	bank := testutil.MakePCRBank(pb.HashAlgo_SHA384, map[uint32][]byte{
 		0:  decodeHex("592b3f42ec556a9c093f201124cc7313fdaa4ce40ae1602e14d51f18fbfc480d6a1e196d1c52ad919328410272dc7222"),
 		1:  decodeHex("d67b943903a0ac6244e491604f4d4c2090031142847e914add418b058b032aa636a7eb559669b1879b8459963ab63c24"),
